@@ -1,0 +1,31 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const nodes=new Map(),events={},calls=[];
+function node(key){if(!nodes.has(key))nodes.set(key,{value:key==='#publishing-destination'?'tiktok':'',checked:false,hidden:false,disabled:false,files:[],textContent:'',innerHTML:'',listeners:{},addEventListener(k,f){this.listeners[k]=f;},reset(){for(const [k,n] of nodes)if(k.startsWith('#tt-'))n.checked=false;},focus(){},showModal(){this.open=true;},close(){this.open=false;}});return nodes.get(key);}
+const connection={connected:true,account_name:'Studio',account_id:'creator',direct_enabled:true,inbox_enabled:true,audit_approved:false,connect_ready:true,setup_issue:''};
+const post={id:'post1',version:2,status:'draft',caption:'<script>caption</script>',method:'direct',content_id:'content1',asset_id:'asset1',media:{duration:4,size:200},post_ids:[]};
+const creator={creator_nickname:'Studio',creator_username:'studio',privacy_level_options:['FOLLOWER_OF_CREATOR','SELF_ONLY'],max_video_post_duration_sec:60,comment_disabled:false,duet_disabled:false,stitch_disabled:true};
+const window={spurAuth:{ready:Promise.resolve(),mockProfile:null,request:async(path,method,body)=>{calls.push({path,method,body});if(path.endsWith('/review'))return {post:{...post},review:{id:'review1',account_id:'creator',creator},connection};return path.endsWith('/dispatch')?{status:'queued'}:{items:[post],connection,creator};}}};
+const doc={querySelector:node,addEventListener(k,f){(events[k]??=[]).push(f);}};
+vm.runInNewContext(fs.readFileSync('spur/static/tiktok-publishing.js','utf8'),{window,document:doc,sessionStorage:{getItem(){return null;},setItem(){}},location:{hash:'#publishing'},URL,Date,Number,setInterval(){}});
+const settle=async()=>{for(let i=0;i<20;i++)await new Promise(setImmediate);};
+const click=async(dataset)=>{for(const f of events.click)f({target:{closest(selector){return selector.includes('[data-tt-')?{dataset}:null;}}});await settle();};
+(async()=>{
+ await window.spurTikTokPublishing.load(true);
+ assert.match(node('#tt-posts').innerHTML,/&lt;script&gt;/);assert.doesNotMatch(node('#tt-posts').innerHTML,/<script>/);
+ await click({ttReview:'post1'});
+ assert.equal(node('#tt-privacy').value,'','privacy must have no default');assert(node('#tt-submit').disabled);
+ assert(node('#tt-stitch').disabled);assert(!node('#tt-comment').checked && !node('#tt-duet').checked);
+ node('#tt-privacy').value='SELF_ONLY';node('#tt-music').checked=true;node('#tt-confirmed').checked=true;window.spurTikTokPublishing.validate();assert(!node('#tt-submit').disabled);
+ node('#tt-commercial').checked=true;window.spurTikTokPublishing.validate();assert(node('#tt-submit').disabled);
+ node('#tt-own-brand').checked=true;window.spurTikTokPublishing.validate();assert(!node('#tt-submit').disabled);
+ node('#tt-branded').checked=true;window.spurTikTokPublishing.validate();assert(node('#tt-submit').disabled);assert.match(node('#tt-review-error').textContent,/Only me/);
+ node('#tt-branded').checked=false;window.spurTikTokPublishing.validate();
+ await node('#tt-review-form').listeners.submit({preventDefault(){}});await settle();
+ const dispatched=calls.find(c=>c.path.endsWith('/dispatch'));assert.equal(dispatched.body.account_id,'creator');assert.equal(dispatched.body.review_id,'review1');assert.equal(dispatched.body.version,2);assert.equal(dispatched.body.privacy_level,'SELF_ONLY');assert.equal(dispatched.body.allow_stitch,false);
+ post.method='inbox';await window.spurTikTokPublishing.load(true);await click({ttReview:'post1'});
+ assert(node('#tt-direct-options').hidden);assert(!node('#tt-privacy').required);assert.match(node('#tt-review-note').textContent,/does not|edit and publish/);
+ node('#tt-confirmed').checked=true;window.spurTikTokPublishing.validate();assert(!node('#tt-submit').disabled);
+ post.status='inbox_delivered';post.publish_id='existing';await window.spurTikTokPublishing.load(true);
+ assert.match(node('#tt-posts').innerHTML,/finish in the TikTok app/);assert.doesNotMatch(node('#tt-posts').innerHTML,/TIKTOK · published/);
+ console.log('TikTok UI passed: no default privacy, disabled interactions, disclosures, account/version-bound consent, escaped captions and inbox delivery labels.');
+})().catch(e=>{console.error(e);process.exitCode=1;});
