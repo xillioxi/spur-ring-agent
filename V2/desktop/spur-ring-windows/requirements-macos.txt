@@ -1,0 +1,8 @@
+# Install on macOS with Python 3.11; build with requirements-macos.lock.
+# Bleak selects CoreBluetooth, not WinRT. Cocoa supplies AppKit/Foundation;
+# Quartz supplies keyboard events; ApplicationServices supplies Accessibility.
+bleak==3.1.0
+pyinstaller==6.22.3
+pyobjc-framework-ApplicationServices==12.2.2
+pyobjc-framework-Cocoa==12.2.2
+pyobjc-framework-Quartz==12.2.2

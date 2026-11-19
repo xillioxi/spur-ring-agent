@@ -1,0 +1,13 @@
+{
+  "ui": "passed",
+  "bluetooth_used": false,
+  "checks": [
+    "startup",
+    "async worker dispatch",
+    "device compatibility",
+    "progress",
+    "error display",
+    "event queue",
+    "clean shutdown"
+  ]
+}

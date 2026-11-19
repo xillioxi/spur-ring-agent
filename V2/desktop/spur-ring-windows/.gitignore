@@ -1,0 +1,7 @@
+/.venv/
+/.venv-macos-*/
+/build/
+/dist/
+/*.spec
+/test-output/
+__pycache__/

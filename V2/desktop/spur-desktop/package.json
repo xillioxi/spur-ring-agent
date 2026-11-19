@@ -1,0 +1,33 @@
+{
+  "name": "spur-desktop",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "description": "Spur Ring desktop dictation for Windows and macOS",
+  "main": "dist-electron/main.cjs",
+  "scripts": {
+    "build": "tsc --noEmit && vite build && node scripts/build-main.mjs",
+    "start": "electron .",
+    "test": "tsx --test tests/*.test.ts",
+    "package": "npm run build && electron-builder --win dir --config electron-builder.json && node scripts/collect-notices.mjs",
+    "package:mac": "bash build-macos.sh"
+  },
+  "dependencies": {
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "ws": "8.22.2"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@types/ws": "8.18.2",
+    "@vitejs/plugin-react": "6.3.0",
+    "electron": "45.3.1",
+    "electron-builder": "26.18.0",
+    "esbuild": "0.28.2",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vite": "8.3.8"
+  }
+}

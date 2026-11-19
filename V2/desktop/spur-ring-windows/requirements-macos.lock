@@ -1,0 +1,21 @@
+# macOS-native Python 3.11 build/runtime pins, for arm64 and x86_64.
+# Metadata and universal2 CPython 3.11 wheel availability verified on PyPI.
+# Native installation/build and ring acceptance still require a Mac.
+# Sources: https://github.com/hbldh/bleak/blob/v3.1.0/pyproject.toml
+# https://github.com/ronaldoussoren/pyobjc/tree/v12.2.2
+# Keep the verified Bleak/authentication baseline unchanged.
+altgraph==0.17.5
+bleak==3.1.0
+macholib==1.16.4
+packaging==26.3
+pyinstaller==6.22.3
+pyinstaller-hooks-contrib==2026.10
+pyobjc-core==12.2.2
+pyobjc-framework-ApplicationServices==12.2.2
+pyobjc-framework-Cocoa==12.2.2
+pyobjc-framework-CoreBluetooth==12.2.2
+pyobjc-framework-CoreText==12.2.2
+pyobjc-framework-libdispatch==12.2.2
+pyobjc-framework-Quartz==12.2.2
+setuptools==82.0.1
+typing_extensions==4.16.0
