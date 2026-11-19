@@ -20,3 +20,6 @@ outputs/
 node_modules/
 dist/
 build/
+/.build-tools/
+# Separate reference checkout retained locally during the web migration.
+/web-platform/
